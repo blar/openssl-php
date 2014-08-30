@@ -1,0 +1,32 @@
+{
+    "name": "blar/openssl",
+    "description": "OpenSSL for PHP",
+    "type": "library",
+    "keywords": ["php", "openssl"],
+    "homepage": "https://github.com/blar/openssl/",
+    "license": "LGPL-3.0+",
+    "authors": [
+        {
+            "name": "Andreas Treichel",
+            "email": "gmblar+github@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=5.5.0",
+        "ext-openssl": "*"
+    },
+    "require-dev": {
+        "satooshi/php-coveralls": "dev-master"
+    },
+    "support": {
+        "source": "https://github.com/blar/openssl/",
+        "issues": "https://github.com/blar/openssl/issues",
+        "wiki": "https://github.com/blar/openssl/wiki"
+    },
+    "autoload": {
+        "psr-4": {
+            "Blar\\OpenSSL\\": "lib/Blar/OpenSSL/"
+        }
+    }
+}
