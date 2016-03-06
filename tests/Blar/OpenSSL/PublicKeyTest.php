@@ -8,17 +8,17 @@ namespace Blar\OpenSSL;
 
 use PHPUnit_Framework_TestCase as TestCase;
 
-class PrivateKeyTest extends TestCase {
+class PublicKeyTest extends TestCase {
 
     public function testEncryptAndDecrypt() {
         $generator = new KeyGenerator();
         $privateKey = $generator->generate();
         $publicKey = $privateKey->getPublicKey();
 
-        $encrypted = $privateKey->encrypt('foobar');
+        $encrypted = $publicKey->encrypt('foobar');
         $this->assertNotSame('foobar', $encrypted);
 
-        $decrypted = $publicKey->decrypt($encrypted);
+        $decrypted = $privateKey->decrypt($encrypted);
         $this->assertSame('foobar', $decrypted);
     }
 

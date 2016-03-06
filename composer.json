@@ -11,13 +11,15 @@
             "email": "gmblar+github@gmail.com"
         }
     ],
-    "minimum-stability": "dev",
     "require": {
-        "php": ">=5.5.0",
-        "ext-openssl": "*"
+        "php": "^7.0",
+        "ext-openssl": "*",
+        "blar/common": "dev-master",
+        "blar/filesystem": "dev-master",
+        "blar/hash": "dev-master"
     },
     "require-dev": {
-        "satooshi/php-coveralls": "dev-master"
+        "satooshi/php-coveralls": "^1.0"
     },
     "support": {
         "source": "https://github.com/blar/openssl/",

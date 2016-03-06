@@ -6,37 +6,101 @@
 
 namespace Blar\OpenSSL;
 
+/**
+ * Class Spkac
+ *
+ * @package Blar\OpenSSL
+ */
 class Spkac {
 
-    protected $spkac;
+    /**
+     * @var string
+     */
+    private $spkac;
 
-    public function __construct($spkac) {
-        if(substr($spkac, 0, 6) == 'SPKAC=') {
-            $spkac = substr($spkac, 6);
-        }
-        $this->spkac = $spkac;
-    }
-
-    public function __toString() {
-        return $this->spkac;
-    }
-
-    public static function create($privateKey, $challenge, $algorithm = NULL) {
+    /**
+     * @param PrivateKey $privateKey
+     * @param string $challenge
+     * @param string $algorithm
+     *
+     * @return Spkac
+     */
+    public static function create(PrivateKey $privateKey, string $challenge = NULL, string $algorithm = NULL): Spkac {
         $spkac = openssl_spki_new($privateKey, $challenge, $algorithm);
         return new static($spkac);
     }
 
-    public function verify() {
-        return openssl_spki_verify($this->spkac);
+    /**
+     * @param string $spkac
+     *
+     * @return string
+     */
+    public static function normalize(string $spkac): string {
+        return self::stripPrefix($spkac, 'SPKAC=');
     }
 
-    public function exportPublicKey() {
-        return openssl_spki_export($this->spkac);
+    /**
+     * @param string $string
+     * @param string $prefix
+     *
+     * @return string
+     */
+    protected static function stripPrefix(string $string, string $prefix): string {
+        if(strpos($string, $prefix) !== 0) {
+            return $string;
+        }
+        return substr($string, strlen($prefix));
     }
 
-    public function exportChallenge() {
-        return openssl_spki_export_challenge($this->spkac);
+    /**
+     * Spkac constructor.
+     *
+     * @param string $spkac
+     */
+    public function __construct(string $spkac) {
+        $this->setSpkac($spkac);
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString(): string {
+        return $this->getSpkac();
+    }
+
+    /**
+     * @return string
+     */
+    public function getSpkac(): string {
+        return $this->spkac;
+    }
+
+    /**
+     * @param string $spkac
+     */
+    public function setSpkac(string $spkac) {
+        $this->spkac = self::normalize($spkac);
+    }
+
+    /**
+     * @return bool
+     */
+    public function verify(): bool {
+        return openssl_spki_verify($this->getSpkac());
+    }
+
+    /**
+     * @return string
+     */
+    public function getPublicKey(): string {
+        return openssl_spki_export($this->getSpkac());
+    }
+
+    /**
+     * @return string
+     */
+    public function getChallenge(): string {
+        return openssl_spki_export_challenge($this->getSpkac());
     }
 
 }
-

@@ -10,41 +10,47 @@ use PHPUnit_Framework_TestCase as TestCase;
 
 class CertificateSigningRequestTest extends TestCase {
 
-    protected function getDn() {
-        return array(
-            "countryName" => "UK",
-            "stateOrProvinceName" => "Somerset",
-            "localityName" => "Glastonbury",
-            "organizationName" => "The Brain Room Limited",
-            "organizationalUnitName" => "PHP Documentation Team",
-            "commonName" => "Wez Furlong",
-            "emailAddress" => "wez@example.com"
-        );
+    protected function generatePrivateKey() {
+        $generator = new KeyGenerator();
+        $generator->setType(OPENSSL_KEYTYPE_RSA);
+        $generator->setBits(4096);
+        $generator->setDigestAlgorithm('SHA1');
+        return $generator->generate();
+    }
+
+    protected function getSubject() {
+        $subject = new Subject();
+        $subject->countryName = 'UK';
+        $subject->stateOrProvinceName = 'Somerset';
+        $subject->localityName = 'Glastonbury';
+        $subject->organizationName = 'The Brain Room Limited';
+        $subject->organizationalUnitName = 'PHP Documentation Team';
+        $subject->commonName = 'Wez Furlong';
+        $subject->emailAddress = 'wez@example.com';
+        return $subject;
     }
 
     public function testCreateCertificateSigningRequestWithPrivateKey() {
-        # $privateKey = PrivateKey::create();
-        # $certificateSigningRequest = new CertificateSigningRequest($this->getDn(), $privateKey);
-        # echo $certificateSigningRequest;
+        $privateKey = $this->generatePrivateKey();
+
+        $certificateSigningRequest = new CertificateSigningRequest();
+        $certificateSigningRequest->setPrivateKey($privateKey);
+        $certificateSigningRequest->setSubject($this->getSubject());
     }
 
     public function testCreateCertificateSigningRequestWithoutPrivateKey() {
-        $certificateSigningRequest = new CertificateSigningRequest($this->getDn());
-        # echo $certificateSigningRequest;
-        # var_dump((string) $certificateSigningRequest->getPrivateKey());
-        # var_dump((string) $certificateSigningRequest->getPrivateKey()->getPublicKey());
+        $certificateSigningRequest = new CertificateSigningRequest();
+        $certificateSigningRequest->setSubject($this->getSubject());
     }
 
     public function testSelfSign() {
-        $certificateSigningRequest = new CertificateSigningRequest($this->getDn());
-        # echo $certificateSigningRequest->getPrivateKey();
-        # var_dump($certificateSigningRequest->getPublicKey());
+        $privateKey = $this->generatePrivateKey();
 
-        $certificate = $certificateSigningRequest->selfSign();
-        # echo $certificate;
-        # var_dump($certificate->getFingerprint('MD5'));
-        # var_dump($certificate->getFingerprint('SHA1'));
-        # var_dump($certificate->parse());
+        $certificateSigningRequest = new CertificateSigningRequest();
+        $certificateSigningRequest->setPrivateKey($privateKey);
+        $certificateSigningRequest->setSubject($this->getSubject());
+        $certificateSigningRequest->generate();
+        $certificateSigningRequest->selfSign();
     }
 
 }
