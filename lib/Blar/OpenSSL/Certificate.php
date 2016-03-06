@@ -229,7 +229,7 @@ class Certificate {
      * @return array
      */
     public function getInfo(bool $longNames = FALSE): array {
-        return openssl_x509_parse($this->getHandle(), $longNames);
+        return openssl_x509_parse($this->getHandle(), !$longNames);
     }
 
     /**
