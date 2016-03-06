@@ -43,7 +43,7 @@ class CertificateTest extends TestCase {
 
     public function testDerFormattedCertificate() {
         $certificate = $this->loadCertificate();
-        $info = $certificate->getInfo();
+        $info = $certificate->getInfo(true);
 
         $this->assertSame('DE', $info['subject']['countryName']);
         $this->assertSame('Foobox', $info['subject']['organizationName']);
