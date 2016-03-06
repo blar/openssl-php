@@ -64,7 +64,7 @@ class Pkcs12 {
         }
 
         if(!openssl_pkcs12_read($pkcs12, $result, $password)) {
-            throw new Exception(OpenSSL::getLastError());
+            throw new RuntimeException(OpenSSL::getLastError());
         }
 
         if(array_key_exists('cert', $result)) {

@@ -27,7 +27,7 @@ class OpenSSLTest extends TestCase {
 
     public function testGetDigestMethods() {
         $digestMethods = OpenSSL::getDigestMethods();
-        $this->assertTrue(is_array($getDigestMethods));
+        $this->assertTrue(is_array($digestMethods));
     }
 
     public function testGetCertificateLocations() {
