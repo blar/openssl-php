@@ -3,7 +3,7 @@
 namespace Blar\OpenSSL;
 
 use Blar\Filesystem\File;
-use Exception;
+use RuntimeException;
 use SplFileInfo;
 
 /**

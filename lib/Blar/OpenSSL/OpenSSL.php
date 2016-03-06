@@ -17,7 +17,7 @@ class OpenSSL {
      *
      * @return string
      */
-    public static function getPseudoRandomBytes(int $length, bool &$strong): string {
+    public static function getPseudoRandomBytes(int $length, bool &$strong = false): string {
         return openssl_random_pseudo_bytes($length, $strong);
     }
 

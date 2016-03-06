@@ -8,6 +8,7 @@ namespace Blar\OpenSSL;
 
 use Blar\Filesystem\File;
 use RuntimeException;
+use SplFileInfo;
 
 /**
  * Class PublicKey
