@@ -5,64 +5,44 @@
 [![Dependency Status](https://gemnasium.com/blar/openssl.svg)](https://gemnasium.com/blar/openssl)
 [![Flattr](https://button.flattr.com/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=Blar&url=https%3A%2F%2Fgithub.com%2Fblar%2Fopenssl)
 
-# OpenSSL für PHP
+# OpenSSL for PHP
 
-## Beispiele
+## Examples
 
 ### Private Key
 
-Einen Private Key mit den Grundeinstellungen aus der OpenSSL-Konfiguration (openssl.cnf) erstellen:
+#### Create a new private key
 
     $generator = new KeyGenerator();
     $privateKey = $generator->generate();
 
-Einen Private Key mit einer anderen Schlüssellänge erstellen:
+#### Create a new private key with 2048 bit
 
     $generator = new KeyGenerator();
     $generator->setBits(2048);
     $privateKey = $generator->generate();
 
-### Verschlüsseln mit dem Private Key
+#### Load an existing private key from file
 
-    $encrypted = $privateKey->crypt('Hello World');
+	$privateKey = PrivateKey::loadFromFileName('privatekey.pem');
 
-### Public Key aus dem Private Key extrahieren
+### Encrypt data with the private key.
+
+    $encrypted = $privateKey->encrypt('Hello World');
+
+### Get public key from private key.
 
     $publicKey = $privateKey->getPublicKey();
 
-### Entschlüsseln mit dem Public Key
+### Decrypt data with the public key
 
     $publicKey->decrypt($encrypted);
-
-### Certificate Signing Request
-
-    $csr = new CertificateSigningRequest();
-    $csr->setPrivateKey($privateKey);
     
-### SMIME mit Zertifikat und Private Key
-
-    $pkcs7 = new Pkcs7();
-    $pkcs7->setCertificate($certificate);
-    $pkcs7->setPrivateKey($privateKey);
-    
-    $smime = $pkcs7->sign($message);
-
-### Mit PKCS12
-
-    $pkcs12 = new Pkcs12();
-
-    $pkcs7 = new Pkcs7();
-    // Setzt Zertifikat und Private Key.
-    $pkcs7->setPkcs12($pkcs12);
-    
-    $smime = $pkcs7->sign($message);
-    
-
 ## Installation
 
-### Abhängigkeiten
+### Dependencies
 
-[Abhängigkeiten von blar/openssl auf gemnasium anzeigen](https://gemnasium.com/blar/openssl)
+[Show dependencies of blar/openssl on gemnasium](https://gemnasium.com/blar/openssl)
 
 ### Installation per Composer
 

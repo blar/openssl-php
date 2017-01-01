@@ -5,6 +5,8 @@
     "keywords": ["php", "openssl"],
     "homepage": "https://github.com/blar/openssl/",
     "license": "LGPL-3.0+",
+	"minimum-stability": "dev",
+	"prefer-stable": true,
     "authors": [
         {
             "name": "Andreas Treichel",
@@ -15,12 +17,16 @@
         "php": "^7.0",
         "ext-openssl": "*",
         "blar/common": "dev-master",
-        "blar/filesystem": "dev-master",
-        "blar/hash": "dev-master"
+        "blar/filesystem": "dev-master"
     },
     "require-dev": {
+	    "blar/hash": "dev-master",
         "satooshi/php-coveralls": "^1.0"
     },
+	"suggest": {
+		"blar/hash": "For digest and fingerprints.",
+		"blar/curl": "Fetch certificates from remote hosts."
+	},
     "support": {
         "source": "https://github.com/blar/openssl/",
         "issues": "https://github.com/blar/openssl/issues",

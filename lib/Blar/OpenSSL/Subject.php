@@ -8,6 +8,11 @@ namespace Blar\OpenSSL;
 
 use ArrayObject;
 
+/**
+ * Class Subject
+ *
+ * @package Blar\OpenSSL
+ */
 class Subject extends ArrayObject {
 
 }

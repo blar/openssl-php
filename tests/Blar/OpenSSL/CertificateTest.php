@@ -8,7 +8,6 @@ namespace Blar\OpenSSL;
 
 use DateTime;
 use PHPUnit_Framework_TestCase as TestCase;
-use SplFileInfo;
 
 class CertificateTest extends TestCase {
 
