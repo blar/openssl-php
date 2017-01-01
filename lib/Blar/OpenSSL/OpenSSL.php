@@ -3,6 +3,7 @@
 namespace Blar\OpenSSL;
 
 use Blar\Hash\Hash;
+use RuntimeException;
 
 /**
  * Class OpenSSL
@@ -12,13 +13,29 @@ use Blar\Hash\Hash;
 class OpenSSL {
 
     /**
+     * Get weak or strong random bytes.
+     *
      * @param int $length
-     * @param bool $strong
      *
      * @return string
      */
-    public static function getPseudoRandomBytes(int $length, bool &$strong = false): string {
-        return openssl_random_pseudo_bytes($length, $strong);
+    public static function getPseudoRandomBytes(int $length): string {
+        return openssl_random_pseudo_bytes($length);
+    }
+
+    /**
+     * Get strong random bytes.
+     *
+     * @param int $length
+     *
+     * @return string
+     */
+    public static function getStrongPseudoRandomBytes(int $length): string {
+        $result = openssl_random_pseudo_bytes($length, $strong);
+        if(!$strong) {
+            throw new RuntimeException('Not strong enough');
+        }
+        return $result;
     }
 
     /**
@@ -89,6 +106,30 @@ class OpenSSL {
      */
     public static function getCertificateLocations(): array {
         return openssl_get_cert_locations();
+    }
+
+    /**
+     * Fetch certificate from remote host.
+     *
+     * @param string $hostName
+     * @param int $port
+     *
+     * @return Certificate
+     */
+    public static function fetchCertificate(string $hostName, int $port): Certificate {
+        throw new RuntimeException('Not implemented');
+    }
+
+    /**
+     * Fetch certificate from remote host.
+     *
+     * @param string $hostName
+     * @param int $port
+     *
+     * @return Chain
+     */
+    public static function fetchCertificateChain(string $hostName, int $port): Chain {
+        throw new RuntimeException('Not implemented');
     }
 
 }
