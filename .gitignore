@@ -2,3 +2,5 @@
 build/
 vendor/
 .idea/
+
+tests/Blar/OpenSSL/pkcs12.pfx

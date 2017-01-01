@@ -6,26 +6,35 @@
 
 namespace Blar\OpenSSL;
 
+use DateTime;
 use PHPUnit_Framework_TestCase as TestCase;
 use SplFileInfo;
 
 class CertificateTest extends TestCase {
 
-    protected function loadCertificate() {
-        $file = new SplFileInfo(__DIR__ . '/test.pem');
-        $certificate = new Certificate($file);
+    public function testValidFrom() {
+        $certificate = Certificate::createFromFileName(__DIR__.'/certificates/google.pem');
 
-        return $certificate;
+        $validFrom = new DateTime('@1481808840');
+        $this->assertEquals($validFrom, $certificate->getValidFrom());
     }
 
-    public function testIsPemOrDerFormat() {
-        $certificate = $this->loadCertificate();
-        $this->assertTrue(Certificate::isDerFormat($certificate));
-        $this->assertFalse(Certificate::isPemFormat($certificate));
+    public function testValidUntil() {
+        $certificate = Certificate::createFromFileName(__DIR__.'/certificates/google.pem');
+
+        $validUntil = new DateTime('@1489066440');
+        $this->assertEquals($validUntil, $certificate->getValidUntil());
+    }
+
+    public function testSubjectAltName() {
+        $certificate = Certificate::createFromFileName(__DIR__.'/certificates/google.pem');
+
+        $this->assertTrue($certificate->hasExtension('subjectAltName'));
+        $this->assertSame('DNS:www.google.de', $certificate->getExtension('subjectAltName'));
     }
 
     public function testCheckPurpose() {
-        $certificate = $this->loadCertificate();
+        $certificate = Certificate::createFromFileName(__DIR__.'/certificates/google.pem');
 
         $this->assertFalse($certificate->checkPurpose(X509_PURPOSE_CRL_SIGN));
         $this->assertFalse($certificate->checkPurpose(X509_PURPOSE_SSL_SERVER));
@@ -34,27 +43,16 @@ class CertificateTest extends TestCase {
     }
 
     public function testFingerprint() {
-        $certificate = $this->loadCertificate();
-        $this->assertEquals(
-            '18a5dc7965fe18a4767c8f2d36199cefcdda7c56',
-            $certificate->getFingerprint()
-        );
-    }
+        $certificate = Certificate::createFromFileName(__DIR__.'/certificates/google.pem');
 
-    public function testDerFormattedCertificate() {
-        $certificate = $this->loadCertificate();
-        $info = $certificate->getInfo(true);
-
-        $this->assertSame('DE', $info['subject']['countryName']);
-        $this->assertSame('Foobox', $info['subject']['organizationName']);
-        $this->assertSame('Development', $info['subject']['organizationalUnitName']);
-        $this->assertSame('example', $info['subject']['commonName']);
+        $this->assertEquals('61a17e36d74d00b0bd42f366476697456f28f798', $certificate->getFingerprint()->getHexValue());
     }
 
     public function testGetPublicKey() {
-        $certificate = $this->loadCertificate();
+        $certificate = Certificate::createFromFileName(__DIR__.'/certificates/google.pem');
+        $publicKey = $certificate->getPublicKey();
 
-        $this->assertContains('PUBLIC KEY', (string) $certificate->getPublicKey());
+        $this->assertInstanceOf(PublicKey::class, $publicKey);
     }
 
 }
