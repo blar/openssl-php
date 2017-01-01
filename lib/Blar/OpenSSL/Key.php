@@ -25,7 +25,7 @@ abstract class Key {
      *
      * @return bool
      */
-    protected static function isKeyResource($resource) {
+    protected static function isKeyResource($resource): bool {
         if(!is_resource($resource)) {
             return FALSE;
         }
@@ -36,43 +36,18 @@ abstract class Key {
     }
 
     /**
-     * @param string $key
-     * @param string $password
+     * Key constructor.
+     *
+     * @param $handle
      */
-    public function __construct($key, string $password = NULL) {
-        $this->load($key, $password);
-    }
-
-    /**
-     * @param mixed $key
-     */
-    public function load($key) {
-        if(self::isKeyResource($key)) {
-            $this->setHandle($key);
-        }
+    public function __construct($handle) {
+        $this->setHandle($handle);
     }
 
     public function __destruct() {
-        if(!is_resource($this->handle)) {
-            return;
+        if(static::isKeyResource($this->handle)) {
+            openssl_pkey_free($this->handle);
         }
-        openssl_pkey_free($this->handle);
-    }
-
-    /**
-     * @return array
-     */
-    public function getDetails() {
-        $details = openssl_pkey_get_details($this->getHandle());
-        /* Die Details enthalten Steuerzeichen, darum erst einmal nicht druckbare Zeichen per base64_encode verarbeiten. */
-        /*
-        array_walk_recursive($details, function (&$data) {
-            if(!ctype_print($data)) {
-                $data = base64_encode($data);
-            }
-        });
-        */
-        return $details;
     }
 
     /**
@@ -90,6 +65,13 @@ abstract class Key {
             throw new RuntimeException('Handle is not a Private key resource');
         }
         $this->handle = $handle;
+    }
+
+    /**
+     * @return array
+     */
+    public function getDetails(): array {
+        return openssl_pkey_get_details($this->getHandle());
     }
 
 }

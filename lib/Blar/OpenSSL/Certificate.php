@@ -4,9 +4,8 @@ namespace Blar\OpenSSL;
 
 use Blar\Common\StringTools;
 use Blar\Hash\Hash;
-use Blar\OpenSSL\PublicKey;
+use DateTime;
 use RuntimeException;
-use SplFileInfo;
 
 /**
  * Class Certificate
@@ -31,10 +30,23 @@ class Certificate {
     private $handle;
 
     /**
-     * @param string|resource $certificate Certificate
+     * @param string $fileName
+     *
+     * @return Certificate
      */
-    public function __construct($certificate = NULL) {
-        $this->load($certificate);
+    public static function createFromFileName(string $fileName): Certificate {
+        $content = file_get_contents($fileName);
+        return static::createFromString($content);
+    }
+
+    /**
+     * @param string $content
+     *
+     * @return Certificate
+     */
+    public static function createFromString(string $content): Certificate {
+        $handle = openssl_x509_read($content);
+        return new static($handle);
     }
 
     /**
@@ -108,31 +120,20 @@ class Certificate {
     }
 
     /**
-     * @param string|resource|SplFileInfo $certificate
+     * @param resource $handle Certificate
      */
-    public function load($certificate) {
-        if(is_resource($certificate)) {
-            $this->setHandle($certificate);
-            return;
-        }
-        if($certificate instanceof SplFileInfo) {
-            $certificate = file_get_contents($certificate);
-        }
-        if(self::isDerFormat($certificate)) {
-            $certificate = self::convertDerToPem($certificate);
-        }
-        if(is_string($certificate)) {
-            $handle = openssl_x509_read($certificate);
-            $this->setHandle($handle);
-        }
+    public function __construct($handle) {
+        $this->setHandle($handle);
     }
 
+    /**
+     * @return void
+     */
     public function __destruct() {
         $handle = $this->getHandle();
-        if(!self::isCertificateResource($handle)) {
-            return FALSE;
+        if(static::isCertificateResource($handle)) {
+            openssl_x509_free($handle);
         }
-        openssl_x509_free($handle);
     }
 
     /**
@@ -144,8 +145,6 @@ class Certificate {
 
     /**
      * @param resource $handle
-     *
-     * @return $this
      */
     public function setHandle($handle) {
         if(!self::isCertificateResource($handle)) {
@@ -164,17 +163,27 @@ class Certificate {
     }
 
     /**
-     * @param string $format
      * @param bool $verbose
      *
      * @return string
      */
-    public function export(string $format = self::FORMAT_PEM, bool $verbose = FALSE): string {
+    public function export(bool $verbose = FALSE): string {
         openssl_x509_export($this->getHandle(), $output, !$verbose);
-        if($format == self::FORMAT_DER) {
-            $output = self::convertPemToDer($output);
-        }
         return $output;
+    }
+
+    /**
+     * @param string $fileName
+     * @param bool $verbose
+     *
+     * @return bool
+     */
+    public function exportToFile(string $fileName, bool $verbose = FALSE): bool {
+        return openssl_x509_export_to_file(
+            $this->getHandle(),
+            $fileName,
+            !$verbose
+        );
     }
 
     /**
@@ -209,21 +218,6 @@ class Certificate {
     }
 
     /**
-     * @param string $fileName
-     * @param string $format
-     * @param bool $verbose
-     *
-     * @return bool
-     */
-    public function exportToFile(string $fileName, string $format = self::FORMAT_PEM, bool $verbose = FALSE): bool {
-        return openssl_x509_export_to_file(
-            $this->getHandle(),
-            $fileName,
-            !$verbose
-        );
-    }
-
-    /**
      * @param bool $longNames
      *
      * @return array
@@ -233,6 +227,8 @@ class Certificate {
     }
 
     /**
+     * Get the fingerprint from certificate.
+     *
      * @param string $algorithm
      *
      * @return Hash
@@ -246,18 +242,70 @@ class Certificate {
         if(!$value) {
             throw new RuntimeException(OpenSSL::getLastError());
         }
-
         $hash = new Hash($algorithm);
         $hash->setValue($value);
         return $hash;
     }
 
     /**
+     * Get the public key from the certificate.
+     *
      * @return PublicKey
      */
     public function getPublicKey(): PublicKey {
         $publicKey = openssl_pkey_get_public($this->getHandle());
         return new PublicKey($publicKey);
+    }
+
+    /**
+     * @return DateTime
+     */
+    public function getValidFrom(): DateTime {
+        $info = $this->getInfo();
+        return DateTime::createFromFormat('U', $info['validFrom_time_t']);
+    }
+
+    /**
+     * @return DateTime
+     */
+    public function getValidUntil(): DateTime {
+        $info = $this->getInfo();
+        return DateTime::createFromFormat('U', $info['validTo_time_t']);
+    }
+
+    /**
+     * @return int
+     */
+    public function getSerial(): int {
+        $info = $this->getInfo();
+        return $info['serialNumber'];
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function hasExtension(string $name): bool {
+        return array_key_exists($name, $this->getExtensions());
+    }
+
+    /**
+     * @return array
+     */
+    public function getExtensions(): array {
+        $info = $this->getInfo();
+        return $info['extensions'];
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return mixed
+     */
+    public function getExtension(string $name) {
+        $extensions = $this->getExtensions();
+        return $extensions[$name];
     }
 
 }

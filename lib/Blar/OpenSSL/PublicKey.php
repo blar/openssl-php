@@ -6,9 +6,7 @@
 
 namespace Blar\OpenSSL;
 
-use Blar\Filesystem\File;
 use RuntimeException;
-use SplFileInfo;
 
 /**
  * Class PublicKey
@@ -18,31 +16,34 @@ use SplFileInfo;
 class PublicKey extends Key {
 
     /**
+     * @param string $fileName
+     *
+     * @return PublicKey
+     */
+    public static function loadFromFileName(string $fileName): PublicKey {
+        $content = file_get_contents($fileName);
+        return static::loadFromString($content);
+    }
+
+    /**
+     * @param string $content
+     *
+     * @return PublicKey
+     */
+    public static function loadFromString(string $content): PublicKey {
+        $handle = openssl_pkey_get_public($content);
+        if(!$handle) {
+            throw new RuntimeException(OpenSSL::getLastError());
+        }
+        return new PublicKey($handle);
+    }
+
+    /**
      * @return string
      */
     public function __toString(): string {
         $details = $this->getDetails();
         return $details['key'];
-    }
-
-    /**
-     * @param mixed $publicKey
-     */
-    public function load($publicKey) {
-        parent::load($publicKey);
-        if($publicKey instanceof File) {
-            $publicKey = $publicKey->getContent();
-        }
-        if($publicKey instanceof SplFileInfo) {
-            $publicKey = file_get_contents($publicKey);
-        }
-        if(is_string($publicKey)) {
-            $handle = openssl_pkey_get_public($publicKey);
-            if(!$handle) {
-                throw new RuntimeException(OpenSSL::getLastError());
-            }
-            $this->setHandle($handle);
-        }
     }
 
     /**
@@ -71,4 +72,12 @@ class PublicKey extends Key {
         return $decrypted;
     }
 
+    /**
+     * @param PublicKey $privateKey
+     *
+     * @return bool
+     */
+    public function compareTo(PublicKey $privateKey): bool {
+        return (string) $this == (string) $privateKey;
+    }
 }
