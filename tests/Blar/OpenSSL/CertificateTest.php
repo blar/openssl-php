@@ -54,4 +54,13 @@ class CertificateTest extends TestCase {
         $this->assertInstanceOf(PublicKey::class, $publicKey);
     }
 
+    public function testFingerprintForPublicKeyPinning() {
+        $certificate = Certificate::createFromFileName(__DIR__.'/certificates/google.pem');
+        $publicKey = $certificate->getPublicKey();
+        $fingerprint = $publicKey->getFingerprint();
+
+        $this->assertEquals('3fd7dcd10a96e3cc0bd6213f2e8b6f6474322d8552f4bb97b9bb25d4a240da39', $fingerprint->getHexValue());
+    }
+
+
 }

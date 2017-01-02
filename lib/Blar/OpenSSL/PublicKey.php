@@ -80,4 +80,29 @@ class PublicKey extends Key {
     public function compareTo(PublicKey $privateKey): bool {
         return (string) $this == (string) $privateKey;
     }
+
+    /**
+     * @return string
+     */
+    protected function getDer() {
+        $temp = strtr($this, [
+            '-----BEGIN PUBLIC KEY-----' => '',
+            '-----END PUBLIC KEY-----' => '',
+            "\n" => ''
+        ]);
+        return base64_decode($temp);
+    }
+
+    /**
+     * Get fingerprint
+     * This is useful for public key pinning.
+     *
+     * @param string $format
+     *
+     * @return \Blar\Hash\Hash
+     */
+    public function getFingerprint($format = 'SHA256') {
+        return Openssl::digest($this->getDer(), $format);
+    }
+
 }
