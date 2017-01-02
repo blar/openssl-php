@@ -102,7 +102,7 @@ class PublicKey extends Key {
      * @return \Blar\Hash\Hash
      */
     public function getFingerprint($format = 'SHA256') {
-        return Openssl::digest($this->getDer(), $format);
+        return OpenSSL::digest($this->getDer(), $format);
     }
 
 }
